@@ -1,0 +1,11 @@
+framework module OneMoreAdSDK {
+  umbrella header "OneMoreAdSDK.h"
+
+  export *
+  module * { export * }
+}
+
+module OneMoreAdSDK.Swift {
+    header "OneMoreAdSDK-Swift.h"
+    requires objc
+}
