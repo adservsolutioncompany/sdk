@@ -1,4 +1,4 @@
-# iOS OneMoreAdSDK Integration
+# iOS OneMoreSDK Integration
 ## Step 1. Add the SDK to Your Project
 ### Manual Download
 
@@ -65,3 +65,4 @@ func showBanner(_ bannerView: UIView) {
 ```swift
 OneMoreAdSDK.default.loadVideo(on: self) { (result) in }
 ```
+
