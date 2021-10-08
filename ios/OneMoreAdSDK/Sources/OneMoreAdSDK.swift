@@ -14,19 +14,118 @@ public typealias BannerLoadResult = (Result<BannerView, OneMoreAdSDKError>) -> V
 
 public class OneMoreAd {
     
+    // MARK: Private
+    private var client: Client?
+    private var availableEvents: [Event] = []
+    
+    private let userDefaults = UserDefaults(suiteName: "slg.OneMoreAdSDK")
+    private let isAppInstalledKey = "iSAppIstalledKey"
+    var isAppInstalled: Bool {
+        guard let userDefaults = userDefaults else { return false }
+        
+        let isAppInstalledKey = userDefaults.bool(forKey: isAppInstalledKey)
+        return isAppInstalledKey
+    }
+    
+    // MARK: Public
     public static let `default`: OneMoreAd = {
         return OneMoreAd()
     }()
     
-    public func configure(domain: String, id: String) {
-        self.domain = domain
-        self.id = id
-        client = Client(domain: domain, id: id)
+    public func configure(domain: String, id: String, advToken: String, appName: String, events: [Event]) {
+
+        self.availableEvents = events
+        
+        InfoStorage.storedId = id
+        InfoStorage.storedAppName = appName
+        InfoStorage.storedAdvToken = advToken
+        
+        client = Client(domain: domain)
+        
+        trackNewConfiguration()
+    }
+}
+
+// MARK: - Events
+extension OneMoreAd {
+    private func trackEvent(_ event: Event?, completion: (() -> Void)? = nil) {
+        guard let event = event else {
+            completion?()
+            return
+        }
+        
+        findUserId { [weak client] in
+            guard let client = client else { return }
+            client.trackEvent(
+                event,
+                infoProvider: InfoProvider(webViewFrame: nil)
+            ) { result in
+                completion?()
+            }
+        }
     }
     
-    // MARK: - Interstitials
+    private func trackInstall(completion: (() -> Void)? = nil) {
+        let installEvent = availableEvents.first(where: { event in
+            guard case .install = event else { return false }
+            return true
+        })
+        
+        trackEvent(installEvent)
+    }
     
-    public func loadInterstitial(on viewController: UIViewController, completion: @escaping InterstitialLoadResult) {
+    private func trackOpen(completion: (() -> Void)? = nil) {
+        let openEvent = availableEvents.first(where: { event in
+            guard case .open = event else { return false }
+            return true
+        })
+        
+        trackEvent(openEvent)
+    }
+    
+    public func trackReg(completion: (() -> Void)? = nil) {
+        let regEvent = availableEvents.first(where: { event in
+            guard case .reg = event else { return false }
+            return true
+        })
+        
+        trackEvent(regEvent)
+    }
+    
+    public func trackAuth(completion: (() -> Void)? = nil) {
+        let authEvent = availableEvents.first(where: { event in
+            guard case .auth = event else { return false }
+            return true
+        })
+        
+        trackEvent(authEvent)
+    }
+    
+    public func trackBet(completion: (() -> Void)? = nil) {
+        let betEvent = availableEvents.first(where: { event in
+            guard case .bet = event else { return false }
+            return true
+        })
+        
+        trackEvent(betEvent)
+    }
+    
+    public func trackDep(completion: (() -> Void)? = nil) {
+        let depEvent = availableEvents.first(where: { event in
+            guard case .dep = event else { return false }
+            return true
+        })
+        
+        trackEvent(depEvent)
+    }
+}
+
+// MARK: - Ads
+public extension OneMoreAd {
+    
+    // MARK: Interstitials
+    func loadInterstitial(on viewController: UIViewController,
+                          completion: @escaping InterstitialLoadResult) {
         
         guard viewController.isViewLoaded == true else {
             completion(.failure(.parentViewControllerNotInViewHierarchy))
@@ -40,7 +139,7 @@ public class OneMoreAd {
         
         client.adContent(
             adType: .interstitial,
-            analytics: AnalyticsProvider(
+            infoProvider: InfoProvider(
                 webViewFrame: viewController.view.safeAreaLayoutGuide.layoutFrame
             )
         ) { [weak self, weak viewController] (result) in
@@ -62,11 +161,11 @@ public class OneMoreAd {
         }
     }
     
-    // MARK: - Banners
-    public func loadBanner(on viewController: UIViewController,
-                           targetSize: CGSize,
-                           bannerType: BannerType,
-                           completion: @escaping BannerLoadResult) {
+    // MARK: Banners
+    func loadBanner(on viewController: UIViewController,
+                    targetSize: CGSize,
+                    bannerType: BannerType,
+                    completion: @escaping BannerLoadResult) {
         
         guard viewController.isViewLoaded == true else {
             completion(.failure(.parentViewControllerNotInViewHierarchy))
@@ -80,7 +179,7 @@ public class OneMoreAd {
         
         client.adContent(
             adType: bannerType.adType,
-            analytics: AnalyticsProvider(
+            infoProvider: InfoProvider(
                 webViewFrame: viewController.view.safeAreaLayoutGuide.layoutFrame
             )
         ) { [weak self] (result) in
@@ -93,7 +192,7 @@ public class OneMoreAd {
         }
     }
     
-    public func loadVideo(on viewController: UIViewController, completion: @escaping InterstitialLoadResult) {
+    func loadVideo(on viewController: UIViewController, completion: @escaping InterstitialLoadResult) {
         
         guard viewController.isViewLoaded == true else {
             completion(.failure(.parentViewControllerNotInViewHierarchy))
@@ -107,7 +206,7 @@ public class OneMoreAd {
         
         client.adContent(
             adType: .video,
-            analytics: AnalyticsProvider(
+            infoProvider: InfoProvider(
                 webViewFrame: viewController.view.safeAreaLayoutGuide.layoutFrame
             )
         ) { [weak self, weak viewController] (result) in
@@ -128,17 +227,16 @@ public class OneMoreAd {
             }
         }
     }
-    
-    // MARK: - Private
-    private var domain: String?
-    private var id: String?
-    private var client: Client?
-    
-    private func presentFullScreenAd(on viewController: UIViewController,
-                                       script: String,
-                                       animated: Bool,
-                                       adType: AdType,
-                                       completion: @escaping InterstitialLoadResult) {
+}
+
+
+// MARK: - Private
+private extension OneMoreAd {
+    func presentFullScreenAd(on viewController: UIViewController,
+                             script: String,
+                             animated: Bool,
+                             adType: AdType,
+                             completion: @escaping InterstitialLoadResult) {
         DispatchQueue.main.async {
             let interstitialVC = InterstitialViewController()
             interstitialVC.inject(dependencies: .init(adType: adType))
@@ -149,14 +247,38 @@ public class OneMoreAd {
         }
     }
     
-    private func makeBanner(with script: String,
-                            targetSize: CGSize,
-                            completion: @escaping BannerLoadResult) {
+    func makeBanner(with script: String,
+                    targetSize: CGSize,
+                    completion: @escaping BannerLoadResult) {
         DispatchQueue.main.async {
             let frame = CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)
             let bannerView = BannerView(frame: frame)
             bannerView.loadScript(script)
             completion(.success(bannerView))
+        }
+    }
+    
+    func findUserId(completion: @escaping () -> Void) {
+        
+        if InfoStorage.storedUserId != nil {
+            completion()
+        }
+        
+        client?.requestUserID(
+            infoProvider: InfoProvider()
+        ) { result in
+            let userId = try? result.get()
+            InfoStorage.storedUserId = userId
+            completion()
+        }
+    }
+    
+    func trackNewConfiguration() {
+        if isAppInstalled {
+            trackOpen()
+        } else {
+            trackInstall()
+            userDefaults?.set(true, forKey: isAppInstalledKey)
         }
     }
 }

@@ -13,11 +13,6 @@ class ViewController: UITableViewController {
     
     var bannerView: UIView?
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        OneMoreAd.default.configure(domain: "z.cdn.adtarget.me", id: "1466054648")
-    }
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
