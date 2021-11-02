@@ -1,39 +1,63 @@
-apply plugin: 'com.android.application'
-
-apply plugin: 'kotlin-android'
-
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion DefaultConfig.compileSdk
+
     defaultConfig {
-        applicationId "one.more.ads.example"
-        minSdkVersion 17
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId DefaultConfig.applicationId
+        minSdkVersion DefaultConfig.minSdk
+        targetSdkVersion DefaultConfig.targetSdk
+        versionCode DefaultConfig.versionCode
+        versionName DefaultConfig.versionName
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+    flavorDimensions 'environment'
+    productFlavors {
+        staging {
+            dimension 'environment'
         }
+        production {
+            dimension 'environment'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        dataBinding true
+        viewBinding true
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.google.android.material:material:1.0.0'
-    implementation 'com.google.android.gms:play-services-ads:18.3.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-}
+    implementation fileTree(dir: "libs", include: ["*.jar"])
 
+    implementation project(":lib")
+
+    // android
+    implementation Android.core_ktx
+    implementation Android.appcompat
+    implementation Android.material
+    implementation Android.constraintlayout
+    implementation Android.lifecycle_extensions
+    implementation Android.lifecycle_viewmodel
+    implementation Android.lifecycle_livedata
+
+    // kotlin
+    implementation Kotlin.stdlib_jdk7
+
+    // koin
+    implementation Koin.android
+    implementation Koin.android_compat
+}

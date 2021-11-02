@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
+android {
+    compileSdkVersion DefaultConfig.compileSdk
+
+    defaultConfig {
+        minSdkVersion DefaultConfig.minSdk
+        targetSdkVersion DefaultConfig.targetSdk
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    kapt Android.room_compiler
+    implementation Android.room_runtime
+    implementation Android.room_ktx
+    implementation Android.gson
+
+    implementation Koin.android
+
+    implementation Squareup.retrofit2
+    implementation Squareup.retrofit2_coroutines
+    implementation Squareup.retrofit2_converter
+    implementation Squareup.okhttp3_logging
+}
