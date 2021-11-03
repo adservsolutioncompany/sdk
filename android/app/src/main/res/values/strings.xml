@@ -1,6 +1,3 @@
 <resources>
-    <string name="app_name">OneMore SDK Demo</string>
-    <string name="btn_show_interstitial">Show Interstitial</string>
-    <string name="btn_show_banner">Show Banner</string>
-    <string name="btn_show_video">Show Video</string>
+    <string name="app_name">Adservsolution</string>
 </resources>
