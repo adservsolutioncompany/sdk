@@ -31,8 +31,12 @@ public class OneMoreAd {
     public static let `default`: OneMoreAd = {
         return OneMoreAd()
     }()
-    
-    public func configure(domain: String, id: String, advToken: String, appName: String, events: [Event]) {
+}
+
+// MARK: - Public methods
+// MARK: Configuration
+public extension OneMoreAd {
+    func configure(domain: String, id: String, advToken: String, appName: String, events: [Event]) {
 
         self.availableEvents = events
         
@@ -46,44 +50,9 @@ public class OneMoreAd {
     }
 }
 
-// MARK: - Events
-extension OneMoreAd {
-    private func trackEvent(_ event: Event?, completion: (() -> Void)? = nil) {
-        guard let event = event else {
-            completion?()
-            return
-        }
-        
-        findUserId { [weak client] in
-            guard let client = client else { return }
-            client.trackEvent(
-                event,
-                infoProvider: InfoProvider(webViewFrame: nil)
-            ) { result in
-                completion?()
-            }
-        }
-    }
-    
-    private func trackInstall(completion: (() -> Void)? = nil) {
-        let installEvent = availableEvents.first(where: { event in
-            guard case .install = event else { return false }
-            return true
-        })
-        
-        trackEvent(installEvent)
-    }
-    
-    private func trackOpen(completion: (() -> Void)? = nil) {
-        let openEvent = availableEvents.first(where: { event in
-            guard case .open = event else { return false }
-            return true
-        })
-        
-        trackEvent(openEvent)
-    }
-    
-    public func trackReg(completion: (() -> Void)? = nil) {
+// MARK: Events
+public extension OneMoreAd {
+    func trackReg(completion: (() -> Void)? = nil) {
         let regEvent = availableEvents.first(where: { event in
             guard case .reg = event else { return false }
             return true
@@ -92,7 +61,7 @@ extension OneMoreAd {
         trackEvent(regEvent)
     }
     
-    public func trackAuth(completion: (() -> Void)? = nil) {
+    func trackAuth(completion: (() -> Void)? = nil) {
         let authEvent = availableEvents.first(where: { event in
             guard case .auth = event else { return false }
             return true
@@ -101,7 +70,7 @@ extension OneMoreAd {
         trackEvent(authEvent)
     }
     
-    public func trackBet(completion: (() -> Void)? = nil) {
+    func trackBet(completion: (() -> Void)? = nil) {
         let betEvent = availableEvents.first(where: { event in
             guard case .bet = event else { return false }
             return true
@@ -110,7 +79,7 @@ extension OneMoreAd {
         trackEvent(betEvent)
     }
     
-    public func trackDep(completion: (() -> Void)? = nil) {
+    func trackDep(completion: (() -> Void)? = nil) {
         let depEvent = availableEvents.first(where: { event in
             guard case .dep = event else { return false }
             return true
@@ -120,7 +89,7 @@ extension OneMoreAd {
     }
 }
 
-// MARK: - Ads
+// MARK: Ads
 public extension OneMoreAd {
     
     // MARK: Interstitials
@@ -229,8 +198,46 @@ public extension OneMoreAd {
     }
 }
 
+// MARK: - Private methods
+// MARK: Events
+private extension OneMoreAd {
+    func trackEvent(_ event: Event?, completion: (() -> Void)? = nil) {
+        guard let event = event else {
+            completion?()
+            return
+        }
+        
+        findUserId { [weak client] in
+            guard let client = client else { return }
+            client.trackEvent(
+                event,
+                infoProvider: InfoProvider(webViewFrame: nil)
+            ) { result in
+                completion?()
+            }
+        }
+    }
+    
+    func trackInstall(completion: (() -> Void)? = nil) {
+        let installEvent = availableEvents.first(where: { event in
+            guard case .install = event else { return false }
+            return true
+        })
+        
+        trackEvent(installEvent)
+    }
+    
+    func trackOpen(completion: (() -> Void)? = nil) {
+        let openEvent = availableEvents.first(where: { event in
+            guard case .open = event else { return false }
+            return true
+        })
+        
+        trackEvent(openEvent)
+    }
+}
 
-// MARK: - Private
+// MARK: Ads
 private extension OneMoreAd {
     func presentFullScreenAd(on viewController: UIViewController,
                              script: String,

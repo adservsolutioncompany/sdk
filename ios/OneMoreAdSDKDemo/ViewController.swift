@@ -14,10 +14,11 @@ class ViewController: UITableViewController {
     var bannerView: UIView?
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch indexPath.row {
-        case 0:
+        
+        switch (indexPath.section, indexPath.row) {
+        case(0, 0):
             OneMoreAd.default.loadInterstitial(on: self) { (result) in }
-        case 1:
+        case (0, 1):
             OneMoreAd.default.loadBanner(
                 on: self,
                 targetSize: tableView.tableFooterView!.frame.size,
@@ -26,11 +27,21 @@ class ViewController: UITableViewController {
                 guard let self = self, case .success(let bannerView) = result else { return }
                 self.showBanner(bannerView)
             }
-        case 2:
+        case (0, 2):
             OneMoreAd.default.loadVideo(on: self) { (result) in }
+        case(1, 0):
+            OneMoreAd.default.trackReg()
+        case(1, 1):
+            OneMoreAd.default.trackAuth()
+        case(1, 2):
+            OneMoreAd.default.trackBet()
+        case(1, 3):
+            OneMoreAd.default.trackDep()
         default:
             break
         }
+        
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func showBanner(_ bannerView: UIView) {

@@ -105,6 +105,7 @@ extension Client {
     func requestUserID(infoProvider: InfoProvider,
                        completion: @escaping (Result<String, ClientError>) -> Void) -> URLSessionDataTask? {
         let queryItems: HTTPQueryItems = [
+            "token": infoProvider.advToken,
             "os": infoProvider.systemName,
             "osv": infoProvider.systemVersion,
             "make": infoProvider.deviceProvider,
