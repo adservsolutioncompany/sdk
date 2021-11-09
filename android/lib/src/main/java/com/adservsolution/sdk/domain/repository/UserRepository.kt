@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepository {
 
     suspend fun addUser(
-        request: AddUserRequest
+        request: AddUserRequest,
+        advToken: String
     ): User?
 
     fun getUser(): Flow<User?>

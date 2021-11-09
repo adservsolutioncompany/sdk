@@ -8,6 +8,10 @@ class AddUserUseCase(
 ) {
 
     suspend operator fun invoke(
-        request: AddUserRequest
-    ) = repository.addUser(request)
+        request: AddUserRequest,
+        advToken: String
+    ) = repository.addUser(
+        request,
+        advToken
+    )
 }

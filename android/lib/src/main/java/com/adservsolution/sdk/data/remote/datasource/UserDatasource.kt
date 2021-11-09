@@ -7,5 +7,11 @@ class UserDatasource(
     private val userService: UserService
 ) {
 
-    fun addUserAsync(request: AddUserRequest) = userService.addUserAsync(request)
+    fun addUserAsync(
+        request: AddUserRequest,
+        advToken: String
+    ) = userService.addUserAsync(
+        request,
+        advToken
+    )
 }

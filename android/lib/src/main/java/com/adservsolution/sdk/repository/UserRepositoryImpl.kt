@@ -15,10 +15,14 @@ class UserRepositoryImpl(
 ) : UserRepository {
 
     override suspend fun addUser(
-        request: AddUserRequest
+        request: AddUserRequest,
+        advToken: String
     ): User? {
         val response = safeApiCall {
-            userDatasource.addUserAsync(request).await()
+            userDatasource.addUserAsync(
+                request,
+                advToken
+            ).await()
         }
 
         response?.let {

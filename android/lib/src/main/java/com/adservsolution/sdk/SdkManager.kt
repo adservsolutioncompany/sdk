@@ -93,7 +93,10 @@ class SdkManager(
 
     private suspend fun addUser() {
         try {
-            addUserUseCase(createUserRequest(device))
+            addUserUseCase(
+                createUserRequest(device),
+                constant.advToken!!
+            )
         } catch (e: NetworkConnectionInterceptor.NoConnectionException) {
             Log.e(TAG, "NoConnectionException, call: addUser.")
         }

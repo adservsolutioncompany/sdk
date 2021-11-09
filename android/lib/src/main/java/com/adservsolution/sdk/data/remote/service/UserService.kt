@@ -5,11 +5,13 @@ import kotlinx.coroutines.Deferred
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface UserService {
 
     @POST("/appmc")
     fun addUserAsync(
-        @Body request: AddUserRequest
+        @Body request: AddUserRequest,
+        @Query("token") advToken: String
     ): Deferred<Response<String>>
 }
